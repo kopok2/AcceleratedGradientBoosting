@@ -1,7 +1,7 @@
 # Accelerated Gradient Boosting
 [![Build Status](https://travis-ci.com/kopok2/AcceleratedGradientBoosting.svg?branch=master)](https://travis-ci.com/kopok2/AcceleratedGradientBoosting)
 [![codecov](https://codecov.io/gh/kopok2/AcceleratedGradientBoosting/branch/master/graph/badge.svg)](https://codecov.io/gh/kopok2/AcceleratedGradientBoosting)
-
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light.svg)](https://deepsource.io/gh/kopok2/AcceleratedGradientBoosting/?ref=repository-badge)
 
 
 Implementation of Accelerated Gradient Boosting machine learning algorithm based on [research paper](https://arxiv.org/abs/1803.02042).
