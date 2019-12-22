@@ -10,3 +10,10 @@ Implementation of Accelerated Gradient Boosting machine learning algorithm based
 
 - Sklearn-like classifier interface
 - Base-learner agnostic implementation
+
+
+## Project structure:
+
+- Source: algorithm Python implementation file.
+- Tests: test suite for algorithm parts.
+- Benchmarks: benchmarking scripts and datasets.
