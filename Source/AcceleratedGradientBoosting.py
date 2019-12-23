@@ -75,7 +75,7 @@ class AcceleratedGradientBoosting:
         self.base_learner = base_learner
         self.base_learner_params = base_learner_params
 
-    def fit(X, y):
+    def fit(self, X, y):
         """
         Perform additive learning procedure.
         """

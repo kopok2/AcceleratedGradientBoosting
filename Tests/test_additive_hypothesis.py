@@ -2,7 +2,7 @@
 """Example test for build."""
 
 import unittest
-
+import AcceleratedGradientBoosting
 
 class TestSuite(unittest.TestCase):
 	def test_adding(self):
