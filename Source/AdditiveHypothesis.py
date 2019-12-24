@@ -21,7 +21,7 @@ class AdditiveHypothesis:
 
         Supports training time caching.
         """
-        if self.predict_cache:
+        if self.predict_cache is not None:
             result = self.predict_cache + self.predictors[-1].predict(data_x) * self.weights[-1]
         else:
             result = np.zeros(len(data_x))
