@@ -54,6 +54,16 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(all(np.zeros(TEST_DATA_LEN) ==
                             add_hypothesis.infer(np.random.random((TEST_DATA_LEN, 10)), True)))
 
+    def test_cache_clear(self):
+        add_hypothesis = AdditiveHypothesis.AdditiveHypothesis()
+        add_hypothesis.add_predictor(DummyPredictor(-1), 0.5)
+        add_hypothesis.infer(np.random.random((TEST_DATA_LEN, 10)), True)
+        add_hypothesis.add_predictor(DummyPredictor(1), 0.5)
+        add_hypothesis.infer(np.random.random((TEST_DATA_LEN, 10)), True)
+        add_hypothesis.clear_cache()
+        self.assertEqual(None, add_hypothesis.predict_cache)
+
+
 
 if __name__ == '__main__':
     unittest.main()
