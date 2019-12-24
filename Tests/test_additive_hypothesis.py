@@ -63,6 +63,16 @@ class TestSuite(unittest.TestCase):
         add_hypothesis.clear_cache()
         self.assertEqual(None, add_hypothesis.predict_cache)
 
+    def test_load_caching(self):
+        load_rounds = 100
+        add_hypothesis = AdditiveHypothesis.AdditiveHypothesis()
+        for i in range(load_rounds):
+            add_hypothesis.add_predictor(DummyPredictor(1), 1 / load_rounds)
+            self.assertTrue(np.allclose(np.repeat((i + 1) / load_rounds, TEST_DATA_LEN),
+                                        add_hypothesis.infer(np.random.random((TEST_DATA_LEN, 10)), True)))
+        add_hypothesis.clear_cache()
+        self.assertTrue(np.allclose(np.ones(TEST_DATA_LEN),
+                                    add_hypothesis.infer(np.random.random((TEST_DATA_LEN, 10)))))
 
 
 if __name__ == '__main__':
