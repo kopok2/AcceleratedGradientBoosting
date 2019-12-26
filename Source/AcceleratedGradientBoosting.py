@@ -19,9 +19,10 @@ Module implements State-of-the-Art classification and regression machine learnin
 
 Implementation by Karol Oleszek 2019
 """
-import numpy as np
+import math
 from sklearn.tree import DecisionTreeRegressor
 from MeanPredictor import MeanPredictor
+from AlgebraicHypothesis import AlgebraicHypothesis
 
 
 class AcceleratedGradientBoosting:
@@ -34,6 +35,7 @@ class AcceleratedGradientBoosting:
         self.base_learner = base_learner
         self.base_learner_params = base_learner_params
         self.shrinkage = shrinkage
+        self.hypothesis = None
 
     def fit(self, data_x, y):
         """
@@ -45,3 +47,47 @@ class AcceleratedGradientBoosting:
         gamma = 1
 
         # Initialize hypothesis
+        f_prev = None
+        f_now = AlgebraicHypothesis()
+        mp = MeanPredictor()
+        mp.fit(y)
+        f_now.add_symbol("Mean_start", 1.0, mp)
+        g_now = AlgebraicHypothesis()
+        g_now.add_symbol("Mean_start", 1.0, mp)
+
+        # Perform boosting
+        for epoch in range(self.iterations):
+            g_prev = g_now
+            # Compute gradient
+            gradient = y - g_prev.predict(data_x)
+
+            # Fit base learner to gradient
+            if self.base_learner_params:
+                base_learner_part = self.base_learner(**self.base_learner_params)
+            else:
+                base_learner_part = self.base_learner()
+            base_learner_part.fit(data_x, gradient)
+            base_learner_name = f"BaseLearner {epoch}"
+
+            # Update
+            f_prev = f_now
+            f_now = AlgebraicHypothesis()
+            f_now.add_symbol(base_learner_name, self.shrinkage, base_learner_part)
+            f_now = g_prev + f_now
+            g_now = ((1 - gamma) * f_now) + (gamma * f_prev)
+
+            # Update Nesterov scheme
+            lambda_prev = lambda_now
+            lambda_now = (1 + math.sqrt(1 + 4 * lambda_prev)) / 2
+            gamma = (1 - lambda_prev) / lambda_now
+
+        self.hypothesis = f_now
+
+    def predict(self, data_x):
+        """
+        Get hypothesis predictions.
+
+        :param data_x: numpy array.
+        :return: prediction vector.
+        """
+        return self.hypothesis.evaluate(data_x)
