@@ -45,12 +45,10 @@ class AcceleratedGradientBoosting:
         Perform additive learning procedure.
         """
         # Initialize Nesterov learning scheme
-        lambda_prev = None
         lambda_now = 0
         gamma = 1
 
         # Initialize hypothesis
-        f_prev = None
         f_now = AlgebraicHypothesis()
         mp = MeanPredictor()
         mp.fit(y)
@@ -60,7 +58,6 @@ class AcceleratedGradientBoosting:
 
         # Perform boosting
         for epoch in range(self.iterations):
-            print(epoch)
             g_prev = g_now
             # Compute gradient
             gradient = y - g_prev.evaluate(data_x, True)
@@ -96,28 +93,3 @@ class AcceleratedGradientBoosting:
         """
         bins = [x + 0.5 for x in range(self.n_classes - 1)]
         return np.digitize(self.hypothesis.evaluate(data_x), bins)
-
-
-from sklearn import datasets, model_selection, metrics
-
-if __name__ == "__main__":
-    print("Loading data...")
-    X, y = datasets.load_breast_cancer(return_X_y=True)
-    X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y)
-
-    print("Fitting classifiers...")
-    t = AcceleratedGradientBoosting(iterations=100, base_learner_params={'max_leaf_nodes': 10})
-    t.fit(X_train, y_train)
-
-    print("Evaluating classifiers...")
-
-    print("#" * 128)
-    print("Accelerated Gradient Boosting:")
-    print("Test:")
-    print(metrics.classification_report(y_test, t.predict(X_test)))
-    print(metrics.confusion_matrix(y_test, t.predict(X_test)))
-    print("Training:")
-    print(metrics.classification_report(y_train, t.predict(X_train)))
-    print(metrics.confusion_matrix(y_train, t.predict(X_train)))
-
-    #print(t.hypothesis)
