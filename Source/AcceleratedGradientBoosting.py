@@ -19,10 +19,9 @@ Module implements State-of-the-Art classification and regression machine learnin
 
 Implementation by Karol Oleszek 2019
 """
-from functools import reduce
-from operator import add
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
+from AdditiveHypothesis import AdditiveHypothesis
 
 
 class AcceleratedGradientBoosting:
@@ -35,10 +34,10 @@ class AcceleratedGradientBoosting:
         self.base_learner = base_learner
         self.base_learner_params = base_learner_params
         self.shrinkage = shrinkage
+        self.hypothesis = AdditiveHypothesis()
 
     def fit(self, data_x, y):
         """
         Perform additive learning procedure.
         """
-        pass
-        
+
