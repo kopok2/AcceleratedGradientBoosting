@@ -52,6 +52,25 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(np.allclose(np.repeat(25, TEST_DATA_LEN),
                                     algebraic_h.evaluate(np.random.random((TEST_DATA_LEN, data_width)))))
 
+    def test_hypothesis_caching(self):
+        data_width = 100
+        algebraic_h = AlgebraicHypothesis.AlgebraicHypothesis()
+        algebraic_h.add_symbol("WeakLearner_1", 0.12, DummyPredictor(100))
+        algebraic_h.evaluate(np.random.random((TEST_DATA_LEN, data_width)), True)
+        algebraic_h.add_symbol("WeakLearner_2", 1, DummyPredictor(13))
+        self.assertTrue(np.allclose(np.repeat(25, TEST_DATA_LEN),
+                                    algebraic_h.evaluate(np.random.random((TEST_DATA_LEN, data_width)))))
+
+    def test_cache_clearing(self):
+        data_width = 100
+        algebraic_h = AlgebraicHypothesis.AlgebraicHypothesis()
+        algebraic_h.add_symbol("WeakLearner_1", 0.12, DummyPredictor(100))
+        algebraic_h.evaluate(np.random.random((TEST_DATA_LEN, data_width)), True)
+        algebraic_h.add_symbol("WeakLearner_2", 1, DummyPredictor(13))
+        algebraic_h.evaluate(np.random.random((TEST_DATA_LEN, data_width)))
+        algebraic_h.clear_cache()
+        self.assertEqual({}, algebraic_h.train_cache)
+
     def test_hypothesis_adding(self):
         algebraic_h_1 = AlgebraicHypothesis.AlgebraicHypothesis()
         algebraic_h_1.add_symbol("WeakLearner_1", 0.12, DummyPredictor(100))

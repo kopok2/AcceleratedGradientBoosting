@@ -13,17 +13,25 @@ class AlgebraicHypothesis:
     def __init__(self):
         self.symbol_weights = defaultdict(int)
         self.symbol_evaluation_scheme = {}
+        self.train_cache = {}
 
-    def evaluate(self, data_x):
+    def evaluate(self, data_x, cache=False):
         """
         Evaluate hypothesis against input data.
 
         :param data_x: numpy array sized accordingly to evaluation scheme members.
+        :param cache: training time cache indicator.
         :return: numpy array.
         """
         result = np.zeros(len(data_x))
         for symbol, weight in self.symbol_weights.items():
-            result += weight * self.symbol_evaluation_scheme[symbol].predict(data_x)
+            if symbol in self.train_cache:
+                result += weight * self.train_cache[symbol]
+            else:
+                eval_result = self.symbol_evaluation_scheme[symbol].predict(data_x)
+                if cache:
+                    self.train_cache[symbol] = eval_result
+                result += weight * eval_result
         return result
 
     def add_symbol(self, symbol, weight, evaluation_scheme):
@@ -57,3 +65,9 @@ class AlgebraicHypothesis:
         for symbol, weight in self.symbol_weights.items():
             result.append(f"{symbol} * {weight} | {self.symbol_evaluation_scheme[symbol]}")
         return "\n".join(result)
+
+    def clear_cache(self):
+        """
+        Clear train time result cache.
+        """
+        self.train_cache = {}

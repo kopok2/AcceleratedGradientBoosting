@@ -63,7 +63,7 @@ class AcceleratedGradientBoosting:
             print(epoch)
             g_prev = g_now
             # Compute gradient
-            gradient = y - g_prev.evaluate(data_x)
+            gradient = y - g_prev.evaluate(data_x, True)
 
             # Fit base learner to gradient
             if self.base_learner_params:
@@ -84,7 +84,7 @@ class AcceleratedGradientBoosting:
             lambda_prev = lambda_now
             lambda_now = (1 + math.sqrt(1 + 4 * lambda_prev)) / 2
             gamma = (1 - lambda_prev) / lambda_now
-
+        f_now.clear_cache()
         self.hypothesis = f_now
 
     def predict(self, data_x):
@@ -99,14 +99,14 @@ class AcceleratedGradientBoosting:
 
 
 from sklearn import datasets, model_selection, metrics
-from sklearn import neural_network
+
 if __name__ == "__main__":
     print("Loading data...")
-    X, y = datasets.load_iris(return_X_y=True)
+    X, y = datasets.load_breast_cancer(return_X_y=True)
     X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y)
 
     print("Fitting classifiers...")
-    t = AcceleratedGradientBoosting(n_classes=3, iterations=100, base_learner=neural_network.MLPRegressor)
+    t = AcceleratedGradientBoosting(iterations=100, base_learner_params={'max_leaf_nodes': 10})
     t.fit(X_train, y_train)
 
     print("Evaluating classifiers...")
