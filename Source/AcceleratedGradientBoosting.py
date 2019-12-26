@@ -20,6 +20,8 @@ Module implements State-of-the-Art classification and regression machine learnin
 Implementation by Karol Oleszek 2019
 """
 import math
+
+import numpy as np
 from sklearn.tree import DecisionTreeRegressor
 from MeanPredictor import MeanPredictor
 from AlgebraicHypothesis import AlgebraicHypothesis
@@ -29,13 +31,14 @@ class AcceleratedGradientBoosting:
     """
     Class implements additive function fitting using base-learner agnostic learning procedure.
     """
-    def __init__(self, iterations=1000, base_learner=DecisionTreeRegressor,
-                 base_learner_params=None, shrinkage=0.9):
+    def __init__(self, iterations=200, base_learner=DecisionTreeRegressor,
+                 base_learner_params=None, shrinkage=0.9, n_classes=2):
         self.iterations = iterations
         self.base_learner = base_learner
         self.base_learner_params = base_learner_params
         self.shrinkage = shrinkage
         self.hypothesis = None
+        self.n_classes = n_classes
 
     def fit(self, data_x, y):
         """
@@ -57,9 +60,10 @@ class AcceleratedGradientBoosting:
 
         # Perform boosting
         for epoch in range(self.iterations):
+            print(epoch)
             g_prev = g_now
             # Compute gradient
-            gradient = y - g_prev.predict(data_x)
+            gradient = y - g_prev.evaluate(data_x)
 
             # Fit base learner to gradient
             if self.base_learner_params:
@@ -74,7 +78,7 @@ class AcceleratedGradientBoosting:
             f_now = AlgebraicHypothesis()
             f_now.add_symbol(base_learner_name, self.shrinkage, base_learner_part)
             f_now = g_prev + f_now
-            g_now = ((1 - gamma) * f_now) + (gamma * f_prev)
+            g_now = (f_now * (1 - gamma)) + (f_prev * gamma)
 
             # Update Nesterov scheme
             lambda_prev = lambda_now
@@ -90,4 +94,30 @@ class AcceleratedGradientBoosting:
         :param data_x: numpy array.
         :return: prediction vector.
         """
-        return self.hypothesis.evaluate(data_x)
+        bins = [x + 0.5 for x in range(self.n_classes - 1)]
+        return np.digitize(self.hypothesis.evaluate(data_x), bins)
+
+
+from sklearn import datasets, model_selection, metrics
+from sklearn import neural_network
+if __name__ == "__main__":
+    print("Loading data...")
+    X, y = datasets.load_iris(return_X_y=True)
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y)
+
+    print("Fitting classifiers...")
+    t = AcceleratedGradientBoosting(n_classes=3, iterations=100, base_learner=neural_network.MLPRegressor)
+    t.fit(X_train, y_train)
+
+    print("Evaluating classifiers...")
+
+    print("#" * 128)
+    print("Accelerated Gradient Boosting:")
+    print("Test:")
+    print(metrics.classification_report(y_test, t.predict(X_test)))
+    print(metrics.confusion_matrix(y_test, t.predict(X_test)))
+    print("Training:")
+    print(metrics.classification_report(y_train, t.predict(X_train)))
+    print(metrics.confusion_matrix(y_train, t.predict(X_train)))
+
+    #print(t.hypothesis)
