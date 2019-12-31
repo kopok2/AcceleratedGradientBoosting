@@ -40,7 +40,7 @@ class AcceleratedGradientBoosting:
         self.hypothesis = None
         self.n_classes = n_classes
 
-    def fit(self, data_x, y):
+    def fit(self, data_x, y, verbose=False):
         """
         Perform additive learning procedure.
         """
@@ -58,10 +58,11 @@ class AcceleratedGradientBoosting:
 
         # Perform boosting
         for epoch in range(self.iterations):
+            if verbose:
+                print(f"Epoch: {epoch + 1}")
             g_prev = g_now
             # Compute gradient
             gradient = y - g_prev.evaluate(data_x, True)
-
             # Fit base learner to gradient
             if self.base_learner_params:
                 base_learner_part = self.base_learner(**self.base_learner_params)
